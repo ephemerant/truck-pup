@@ -1,0 +1,37 @@
+  <ion-modal-view style="width: 70%; height: 70%; top: 15%; left: 15%; right: 15%; bottom: 15%;">
+    <ion-header-bar class="bar bar-header">
+      <h1 class="title">Broadcast</h1>
+      <button class="button button-clear button-positive" ng-click="modal.hide()">Cancel</button>
+    </ion-header-bar>
+    <ion-content>
+      <div class="list">
+        <div class="item item-text-wrap">
+          <div class="row">
+            <div class="col">
+              <div class="text-center">
+                <h2 style="text-align: auto">
+                  Set the number of hours your truck will be active at this
+                  location. Then use the broadcast button to
+                  announce your location and active hours.
+                </h2>
+              </div>
+            </div>
+          </div>
+            <div class="item">
+              <label class="item item-input">
+                <span class="input-label">Number of Hours</span>
+                <input type="number" step="1" min="1" ng-model="modal.numberOfHours" required>
+              </label>
+            </div>
+              <div>
+                <button class="button button-full button-positive" ng-click="broadcast()">
+                  Submit
+                </button>
+                <button class="button button-full button-positive" ng-click="broadcastStop()">
+                  Stop Broadcast
+                </button>
+              </div>
+
+      </div>
+    </ion-content>
+  </ion-modal-view>

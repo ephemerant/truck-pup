@@ -1,0 +1,101 @@
+﻿@{
+    ViewBag.Title = "Vendor Registration";
+}
+
+<form class="card card-block render render-login" method="post">
+    <!--Header-->
+    <div class="text-xs-center">
+        <h3>Vendor Registration</h3>
+        <hr class="mt-2 mb-2">
+    </div>
+
+    <!--Body-->
+    <div class="md-form">
+        <i class="fa fa-envelope prefix"></i>
+        <input type="email" id="email" name="email" class="form-control" required>
+        <label for="email">Email</label>
+    </div>
+
+    <div class="md-form">
+        <i class="fa fa-unlock-alt prefix"></i>
+        <input type="password" id="password" name="password" class="form-control" minlength="6" required>
+        <label for="password">Password</label>
+    </div>
+
+    <div class="md-form">
+        <i class="fa fa-unlock-alt prefix"></i>
+        <input type="password" id="password-confirm" name="password-confirm" class="form-control" minlength="6" required>
+        <label for="password-confirm">Confirm Password</label>
+    </div>
+
+    <div class="text-xs-center">
+        <button id="btnRegister" class="btn btn-primary active">Register</button>
+        <button id="btnLoading" class="btn btn-primary active" disabled="disabled" style="display: none;">Registering...</button>
+    </div>
+
+</form>
+
+@section Scripts {
+    <script>
+        (function () {
+            var password = document.getElementById("password");
+            var confirm_password = document.getElementById("password-confirm");
+
+            function validatePassword() {
+                if (password.value != confirm_password.value) {
+                    confirm_password.setCustomValidity("The passwords must match.");
+                } else {
+                    confirm_password.setCustomValidity('');
+                }
+            }
+
+            password.onchange = validatePassword;
+            confirm_password.onkeyup = validatePassword;
+
+            $('form').submit(function (e) {
+                e.preventDefault();
+
+                $('#btnRegister').hide();
+                $('#btnLoading').show();
+
+                var email = $('#email').val();
+                var password = $('#password').val();
+
+                console.log(email, password);
+
+                firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then(function (result) {
+                    // Get our token
+                    firebase.auth().currentUser.getToken(true)
+                        .then(function (token) {
+                            // Create a server-side account with the UID
+                            // Automatically login
+                            // Confirm the token with the server
+                            $.ajax({
+                                type: 'POST',
+                                url: window.location.origin + '/api/register',
+                                data: JSON.stringify({
+                                    token: token,
+                                    id: '@ViewBag.id'
+                                }),
+                                success: function (response) {
+                                    // Redirect
+                                    console.log(response);
+                                    window.location = '.';
+                                },
+                                contentType: 'application/json'
+                            });
+
+                        });
+                })
+                .catch(function (error) {
+                    $('#btnRegister').show();
+                    $('#btnLoading').hide();
+
+                    toastr.error(error.message);
+                });
+
+            });
+        })();
+    </script>
+}

@@ -1,0 +1,63 @@
+<ion-view view-title="{{ trucks[id].name }}">
+  <ion-content>
+    <div class="list card">
+      <div class="item text-center" ng-if="trucks[id].logo">
+        <img class="truck-logo large" style="background: url({{trucks[id].logo}})">
+      </div>
+      <div ng-if="trucks[id].about">
+        <div class="item item-divider bar bar-dark">
+          About
+        </div>
+        <div class="item item-text-wrap">
+          <h2>{{ trucks[id].about }}</h2>
+        </div>
+      </div>
+      <div class="list" ng-if="trucks[id].menu['Combo'].length > 0 ||
+                               trucks[id].menu['Entree'].length > 0 ||
+                               trucks[id].menu['Side'].length > 0 ||
+                               trucks[id].menu['Drink'].length > 0">
+
+        <div ng-repeat="mealType in ['Combo', 'Entree', 'Side', 'Drink']" ng-if="trucks[id].menu[mealType].length > 0">
+          <div class="item item-divider bar bar-dark">
+            {{ mealType }}s
+          </div>
+          <a class="item" ng-repeat="item in trucks[id].menu[mealType]">
+            <h2>{{item.name}}</h2>
+            <h3>{{item.price | currency}}</h3>
+          </a>
+        </div>
+
+        <!--<div class="item item-divider" ng-if="trucks[id].menu['Combo'].length > 0">
+          Combos
+        </div>
+        <a class="item" ng-repeat="comboItem in trucks[id].menu['Combo']" ng-if="trucks[id].menu['Combo']">
+          <h2>{{comboItem.name}}</h2>
+          <h3>{{comboItem.price | currency}}</h3>
+        </a>
+
+        <div class="item item-divider" ng-if="trucks[id].menu['Entree'].length > 0">
+          Entrees
+        </div>
+        <a class="item" ng-repeat="entreeItem in trucks[id].menu['Entree']" ng-if="trucks[id].menu['Entree']">
+          <h2>{{entreeItem.name}}</h2>
+          <h3>{{entreeItem.price | currency}}</h3>
+        </a>
+        <div class="item item-divider" ng-if="trucks[id].menu['Side'].length > 0">
+          Sides
+        </div>
+        <a class="item" ng-repeat="sideItem in trucks[id].menu['Side']" ng-if="trucks[id].menu['Side']">
+          <h2>{{sideItem.name}}</h2>
+          <h3>{{sideItem.price | currency}}</h3>
+        </a>
+        <div class="item item-divider" ng-if="trucks[id].menu['Drink'].length > 0">
+          Drinks
+        </div>
+        <a class="item" ng-repeat="drinkItem in trucks[id].menu['Drink']" ng-if="trucks[id].menu['Drink']">
+          <h2>{{drinkItem.name}}</h2>
+          <h3>{{drinkItem.price | currency}}</h3>
+        </a>-->
+    </div>
+
+    </div>
+  </ion-content>
+</ion-view>

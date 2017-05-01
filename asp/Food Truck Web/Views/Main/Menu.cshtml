@@ -1,0 +1,191 @@
+﻿@{
+    ViewBag.Title = "Vendor";
+    ViewBag.Subtitle = "Manage Menu";
+}
+
+@section Styles
+{
+    <link href="~/Content/angular-ui-tree.min.css" rel="stylesheet" />
+}
+
+<div class="card card-block render render-body" ng-app="app" ng-controller="MenuTableCtrl">
+    @*menu*@
+    <table ng-repeat="type in types" ui-tree="treeOptions" id="tree-root" class="table table-hover td-middle table-col-4">
+        <thead class="thead unique-color-dark">
+            <tr>
+                <th style="width: auto;"></th>
+                <th>{{type}}</th>
+                <th>Price</th>
+                <th class="button-col-200 col-half">Options</th>
+                <th class="button-col-200 col-half">
+                    <button class="btn btn-outline-info btn-block btn-inline-block pull-right" data-nodrag ng-click="newItem(type)">
+                        <i class="fa fa-plus"></i>
+                        Add {{type}}
+                    </button>
+                </th>
+            </tr>
+        </thead>
+        <tbody ui-tree-nodes ng-model="menu[type]">
+            <tr ng-repeat="item in menu[type]" ui-tree-node>
+                <td style="width: 10%;">
+                    <i class="fa fa-arrows" ui-tree-handle></i>
+                </td>
+                <td>
+                    <strong>{{item.name}}</strong>
+                </td>
+                <td>
+                    <strong>{{item.price | currency}}</strong>
+                </td>
+                <td class="button-col-200 col-half">
+                    <button class="btn btn-success active btn-block pull-right" data-nodrag ng-click="editItem(item)">
+                        <i class="fa fa-pencil"></i>
+                        Edit
+                    </button>
+                </td>
+                <td class="button-col-200 col-half">
+                    <button class="btn btn-danger active btn-block pull-right" data-nodrag ng-click="removeItem(this)">
+                        <i class="fa fa-times"></i>
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section Scripts
+{
+    <script src="~/Scripts/angular-ui-tree.min.js"></script>
+
+    <script>
+        var app = angular.module('app', ['ui.tree']);
+
+        app.controller('MenuTableCtrl', function ($scope) {
+            var vm = $scope;
+
+            vm.types = ['Combo', 'Entree', 'Side', 'Drink'];
+            vm.menu = { Combo: [], Entree: [], Side: [], Drink: [] };
+
+            // Wait for auth to load
+            function load(code) {
+                var callback = firebase.auth().onAuthStateChanged(function () {
+                    // De-subscribe after one call
+                    callback();
+                    code();
+                });
+            }
+
+            vm.loadMenu = function () {
+                $.ajax({
+                    type: 'POST',
+                    url: window.location.origin + '/api/menu',
+                    data: JSON.stringify({
+                        type: 'get',
+                        data: {
+                            uid: firebase.auth().currentUser.uid
+                        }
+                    }),
+                    success: function successCallback(response) {
+                        vm.menu = JSON.parse(response.menu);
+                        vm.$apply();
+                        console.log(response);
+                    },
+                    contentType: 'application/json'
+                });
+            };
+
+            load(vm.loadMenu);
+
+            vm.saveMenu = function () {
+                firebase.auth().currentUser.getToken(true).then(function (token) {
+                    // Send the data to the server
+                    $.ajax({
+                        type: 'POST',
+                        url: window.location.origin + '/api/menu',
+                        data: JSON.stringify({
+                            token: token,
+                            type: 'update',
+                            data: {
+                                menu: JSON.stringify(vm.menu)
+                            }
+                        }),
+                        success: function (response) {
+                            // Redirect
+                            console.log(response);
+                        },
+                        contentType: 'application/json'
+                    });
+                });
+            };
+
+            vm.treeOptions = {
+                dropped: vm.saveMenu
+            };
+
+            vm.removeItem = function (item) {
+                item.remove();
+                vm.saveMenu();
+            };
+
+            vm.newItem = function (type) {
+                swal({
+                    title: type + ' Name:',
+                    input: 'text',
+                    showCancelButton: true,
+                    confirmButtonText: 'Continue',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: false
+                }).then(function (name) {
+                    if (name.trim().length > 0) {
+                        swal({
+                            title: type + ' Price:',
+                            input: 'number',
+                            showCancelButton: true,
+                            confirmButtonText: 'Submit',
+                            showLoaderOnConfirm: true,
+                            allowOutsideClick: false
+                        }).then(function (price) {
+                            vm.menu[type].push({
+                                id: vm.menu[type].length + 1,
+                                name: name.trim(),
+                                price: price
+                            });
+                            vm.saveMenu();
+                            vm.$apply();
+                        });
+                    }
+                });
+            };
+
+            vm.editItem = function (item) {
+                swal({
+                    title: 'Edit Name:',
+                    input: 'text',
+                    showCancelButton: true,
+                    confirmButtonText: 'Continue',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: false
+                }).then(function (name) {
+                    if (name.trim().length > 0) {
+                        swal({
+                            title: 'Edit Price:',
+                            input: 'number',
+                            inputValue: item.price,
+                            showCancelButton: true,
+                            confirmButtonText: 'Submit',
+                            showLoaderOnConfirm: true,
+                            allowOutsideClick: false
+                        }).then(function (price) {
+                            item.price = price;
+                            item.name = name;
+                            vm.saveMenu();
+                            vm.$apply();
+                        });
+                        $('.swal2-input').val(item.price);
+                    }
+                });
+                $('.swal2-input').val(item.name);
+            };
+        });
+    </script>
+}

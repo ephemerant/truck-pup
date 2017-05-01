@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "Login";
+}
+
+<form class="card card-block render render-login" method="post">
+    <!--Header-->
+    <div class="text-xs-center">
+        <h3>Login</h3>
+        <hr class="mt-2 mb-2">
+    </div>
+
+    <!--Body-->
+    <div class="md-form">
+        <i class="fa fa-envelope prefix"></i>
+        <input type="email" id="email" name="email" class="form-control" required>
+        <label for="email">Email</label>
+    </div>
+
+    <div class="md-form">
+        <i class="fa fa-unlock-alt prefix"></i>
+        <input type="password" id="password" name="password" class="form-control" required>
+        <label for="password">Password</label>
+    </div>
+
+    <div class="text-xs-center">
+        <button id="btnLogin" class="btn btn-primary active">Submit</button>
+        <button id="btnLoading" class="btn btn-primary active" disabled="disabled" style="display: none;">Logging in...</button>
+    </div>
+
+    <!--Footer-->
+    <div class="modal-footer">
+        <div class="options">
+            <p><a id="forgotPassword" href="#">Reset Password</a></p>
+        </div>
+    </div>
+
+</form>
+
+@section Scripts
+{
+    <script>
+        $('#forgotPassword').click(function (e) {
+            e.preventDefault();
+
+            swal({
+                title: 'A link to reset your password will be sent to the below email:',
+                input: 'email',
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                showLoaderOnConfirm: true,
+                preConfirm: function (email) {
+                    return new Promise(function (resolve, reject) {
+                        firebase.auth().sendPasswordResetEmail(email).then(function () {
+                            resolve();
+                        }, function (error) {
+                            reject(error);
+                        });
+                    })
+                },
+                allowOutsideClick: false
+            }).then(function (email) {
+                swal({
+                    type: 'success',
+                    title: 'Email sent!',
+                    html: 'An email was sent to <b>' + email + '</b> with a link to reset your password'
+                })
+            })
+        });
+
+        $('form').submit(function (e) {
+            e.preventDefault();
+
+            $('#btnLogin').hide();
+            $('#btnLoading').show();
+
+            // Connect to Firebase
+            firebase.auth().signInWithEmailAndPassword($('#email').val(), $('#password').val())
+                .then(function (result) {
+                    // Get our token
+                    firebase.auth().currentUser.getToken(true)
+                        .then(function (token) {
+                            // Confirm the token with the server
+                            $.ajax({
+                                type: 'POST',
+                                url: window.location.origin + '/api/login',
+                                data: JSON.stringify({
+                                    token: token
+                                }),
+                                success: function(response) {
+                                    // Redirect
+                                    console.log(response);
+                                    window.location = '.';
+                                },
+                                contentType: 'application/json'
+                            });
+                        });
+                })
+                .catch(function (error) {
+                    $('#btnLogin').show();
+                    $('#btnLoading').hide();
+
+                    toastr.error(error.message);
+                });
+        });
+    </script>
+}

@@ -1,0 +1,209 @@
+﻿.pa-1 {
+    padding: 1em;
+}
+
+.render {
+    margin: 0px auto;
+}
+
+.render-body {
+    max-width: 1200px;
+}
+
+.render-login {
+    max-width: 800px;
+}
+
+.fa.fa-envelope {
+    font-size: 24px;
+}
+
+.btn.active {
+    box-shadow: none;
+}
+
+    .btn.active:hover {
+        box-shadow: 0 5px 11px 0 rgba(0,0,0,.18),0 4px 15px 0 rgba(0,0,0,.15);
+    }
+
+.dropdown-item.active {
+    color: #fff !important;
+}
+
+#toast-container > div {
+    -moz-box-shadow: 0 0 12px #333;
+    -webkit-box-shadow: 0 0 12px #333;
+    box-shadow: 0 0 12px #333;
+}
+
+.file-form input {
+    position: absolute;
+    margin-top: 50px;
+}
+
+.file-form {
+    height: 90px;
+}
+
+.swal2-modal input[type=email]:focus, .swal2-modal input[type=text]:focus {
+    border-bottom: 1px solid #b4dbed;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.06);
+}
+
+.swal2-modal .swal2-title {
+    line-height: 45px;
+}
+
+.logo {
+    height: 100px;
+    width: 100px;
+    margin: 0px auto;
+    margin-bottom: 20px;
+    border-radius: 20%;
+    background-size: cover !important;
+    background-position: 50% !important;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.thead.unique-color-dark tr {
+    background-color: #1C2331 !important;
+}
+
+.thead.unique-color-dark th {
+    color: #fff;
+}
+
+.td-middle td, .td-middle th {
+    vertical-align: middle !important;
+}
+
+.btn-danger.active {
+    background: #C00 !important;
+}
+
+.btn-success.active {
+    background: #090 !important;
+}
+
+button i {
+    margin-right: 5px;
+}
+
+.table-col-3 td, .table-col-3 th {
+    width: 33%;
+}
+
+    .table-col-3 td.col-half, .table-col-3 th.col-half {
+        width: 16%;
+    }
+
+.button-col-180 button {
+    max-width: 180px;
+}
+
+.table-col-3 td.col-half.button-col-200 {
+    width: 33%;
+}
+
+.table-col-4 td {
+    width: 25%;
+}
+
+.table-col-25 td.col-half {
+    width: 12%;
+}
+
+.table-col-4 td.col-half.button-col-200 {
+    width: 15%;
+}
+
+.button-col-200 button {
+    max-width: 200px;
+}
+
+.btn-inline-block {
+    display: inline-block;
+}
+
+.btn-outline-info, .btn-outline-info:active, .btn-outline-info:active:focus, .btn-outline-info:focus {
+    color: #fff !important;
+    border-color: #fff;
+    background-color: transparent;
+}
+
+    .btn-outline-info:hover {
+        border-color: #090;
+    }
+
+.btn {
+    margin-right: 8px;
+}
+
+.angular-ui-tree-handle {
+    background: #f8faff;
+    border: 1px solid #dae2ea;
+    color: #7c9eb2;
+    padding: 10px 10px;
+}
+
+    .angular-ui-tree-handle:hover {
+        color: #438eb9;
+        background: #f4f6f7;
+        border-color: #dce2e8;
+    }
+
+.angular-ui-tree-placeholder {
+    background: #f0f9ff;
+    border: 2px dashed #bed2db;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+tr.angular-ui-tree-empty {
+    height: 68px;
+}
+
+.group-title {
+    background-color: #687074 !important;
+    color: #FFF !important;
+}
+
+
+/* --- Tree --- */
+.tree-node {
+    border: 1px solid #dae2ea;
+    background: #f8faff;
+    color: #7c9eb2;
+}
+
+.nodrop {
+    background-color: #f2dede;
+}
+
+.tree-node-content {
+    margin: 10px;
+}
+
+.tree-handle {
+    padding: 10px;
+    background: #428bca;
+    color: #FFF;
+    margin-right: 10px;
+}
+
+.angular-ui-tree-handle:hover {
+}
+
+.angular-ui-tree-placeholder {
+    background: #f0f9ff;
+    border: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.fc-event, .fc-event:hover, .ui-widget .fc-event {
+    color: #fff !important;
+}

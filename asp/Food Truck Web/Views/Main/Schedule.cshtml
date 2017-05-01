@@ -1,0 +1,343 @@
+﻿@{
+    ViewBag.Title = "Vendor";
+    ViewBag.Subtitle = "Schedule Posts";
+}
+
+@section Styles {
+    <link href="~/Content/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css" rel="stylesheet" />
+    <link href='~/Content/fullcalendar.min.css' rel='stylesheet' />
+    <link href='~/Content/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .button-box {
+            max-width: 900px;
+            text-align: right;
+            margin: 10px auto;
+        }
+
+        .row.pad {
+            padding-bottom: 10px;
+        }
+    </style>
+}
+
+<div class="card card-block render render-body">
+    <!--modal-->
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel" id="gridSystemModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="gridSystemModalLabel">Create Event</h4>
+                </div>
+                <form id="formCreateEvent">
+                    <div class="modal-body">
+                        <!--name-->
+                        <div class="row pad">
+                            <div class="col-sm-2">
+                                <label>Title:</label>
+                            </div>
+                            <div class="col-sm-10">
+                                <input id="eventTitle" type="text" class="form-control" required />
+                            </div>
+                        </div>
+                        <!--start date/time-->
+                        <div class="row pad">
+                            <div class="col-sm-2">
+                                <label>Starts:</label>
+                            </div>
+                            <div class="col-sm-5">
+                                <!--date-->
+                                <div class="input-group date" id="dateStartPicker" data-provide="datepicker">
+                                    <input id="dateStart" type="text" class="form-control" required>
+                                    <div class="input-group-addon">
+                                        <span class="glyphicon glyphicon-th"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-5">
+                                <!--time-->
+                                <div class="input-group bootstrap-timepicker timepicker">
+                                    <input id="timeStart" type="text" class="form-control input-small" required>
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-5" style="display: none;">
+                                <!--time-->
+                                <div class="input-group bootstrap-timepicker timepicker">
+                                    <input id="timeDefault" type="text" class="form-control input-small" required>
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <!--end date/time-->
+                        <div class="row pad">
+                            <div class="col-sm-2">
+                                <label>Ends:</label>
+                            </div>
+                            <div class="col-sm-5">
+                                <!--date-->
+                                <!--<div class="input-group date" data-provide="datepicker">
+                                    <input id="dateEnd" type="text" class="form-control" required>
+                                    <div class="input-group-addon">
+                                        <span class="glyphicon glyphicon-th"></span>
+                                    </div>
+                                </div>-->
+                            </div>
+                            <div class="col-sm-5">
+                                <!--time-->
+                                <div class="input-group bootstrap-timepicker timepicker">
+                                    <input id="timeEnd" type="text" class="form-control input-small" required>
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" id="btnSubmitEvent">Create</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    <!--custom button(s)-->
+    <div class='button-box'>
+        <button type='button' class='fc-button fc-state-default fc-corner-left fc-corner-right fc' data-toggle="modal" data-target="#gridSystemModal" id="btnCreateEvent">
+            create event
+        </button>
+    </div>
+    <!--calendar-->
+    <div id='calendar'></div>
+</div>
+
+@section Scripts {
+    <script src='~/Scripts/moment.min.js'></script>
+    <script src='~/Scripts/fullcalendar.min.js'></script>
+    <script src="~/Scripts/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+    <script>
+        $(document)
+        .ready(function () {
+            var events = [];
+            var editing = false;
+            var editID = null;
+
+            // dates
+            var $dateStart = $('#dateStartPicker').datepicker({ format: "m/d/yyyy", autoclose: true, todayHighlight: true });
+
+            $dateStart.datepicker('update', new Date()); // default to today's date
+
+            // times
+            var $timeStart = $('#timeStart').timepicker();
+            var $timeEnd = $('#timeEnd').timepicker();
+
+            $('#timeDefault').timepicker();
+
+            // switch modal between edit and create modes
+            function editMode(edit, event) {
+                editing = edit;
+
+                if (event)
+                    editID = event.id;
+                else
+                    editID = null;
+
+                if (editing) {
+                    $('#gridSystemModalLabel').text('Edit Event');
+                    $('#btnSubmitEvent').text('Update');
+                }
+                else {
+                    $('#gridSystemModalLabel').text('Create Event');
+                    $('#btnSubmitEvent').text('Create');
+
+                    // Clear form
+                    $('#eventTitle').val('');
+                    $dateStart.datepicker('update', new Date()); // default to today's date
+                    //$dateEnd.datepicker('update', new Date()); // default to today's date
+                    $('#timeStart').val($('#timeDefault').val());
+                    $('#timeEnd').val($('#timeDefault').val());
+                }
+            }
+
+            $('#btnCreateEvent').click(function () {
+                editMode(false);
+            });
+
+            // initialize calendar
+            $('#calendar')
+                .fullCalendar({
+                    header: {
+                        left: 'prev,next',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay,listWeek'
+                    },
+                    navLinks: true,  // can click day/week names to navigate views
+                    editable: false,
+                    eventLimit: true,  // allow "more" link when too many events
+                    events: events,
+                    eventClick:
+                        function (event) { // click event to edit
+                            editMode(true, event);
+
+                            $('#eventTitle').val(event.title);
+
+                            var start = event.start._i;
+                            var end = start;
+
+                            if (event.end)
+                                end = event.end._i;
+
+                            $dateStart.datepicker('update', start);
+
+                            //$dateEnd.datepicker('update', new Date());
+
+                            $timeStart.timepicker('setTime', start.toLocaleTimeString());
+                            $timeEnd.timepicker('setTime', end.toLocaleTimeString());
+
+                            $('#gridSystemModal').modal('show');
+                        },
+                    dayClick:
+                        function (date) {
+                            // click day for event on that day
+                            $('#btnCreateEvent').click();
+
+                            console.log(date);
+
+                            var d = date._d;
+
+                            if (d.getHours() != 0) // set to next day
+                                d.setHours(d.getHours() + 24 - d.getHours());
+
+                            //var parts = $this.attr('data-date').split('-'); // year, month, day
+                            //var d = new Date(parts[1] + '-' + parts[2] + '-' + parts[0]); // month, day, year
+
+                            $dateStart.datepicker('update', d); // default to the day's date
+                        }
+                });
+
+            // event form submission
+            $('#formCreateEvent')
+                .submit(function (e) {
+                    e.preventDefault();
+
+                    var title = $('#eventTitle').val();
+
+                    var dateStart = $('#dateStart').val();
+                    var timeStart = $('#timeStart').val();
+
+                    var dateEnd = $('#dateStart').val();
+                    var timeEnd = $('#timeEnd').val();
+
+                    dateStart = new Date(dateStart + ' ' + timeStart);
+                    dateEnd = new Date(dateEnd + ' ' + timeEnd);
+
+                    var event = { title: title, start: dateStart, end: dateEnd, id: editID };
+
+                    $('#gridSystemModal').modal('hide');
+
+                    if (editing) // if editing, remove event to re-add
+                    {
+                        var i = 0;
+
+                        for(i = 0; i < events.length; i++)
+                        {
+                            var _event = events[i];
+
+                            if (_event.id == editID)
+                                break;
+                        }
+
+                        events.splice(i, 1);
+                    }
+
+                    events.push(event);
+
+                    $('#calendar').fullCalendar('removeEventSources');
+                    $('#calendar').fullCalendar('addEventSource', events);
+
+                    firebase.auth().currentUser.getToken(true).then(function (token) {
+                        // Send the data to the server
+                        $.ajax({
+                            type: 'POST',
+                            url: window.location.origin + '/api/schedule',
+                            data: JSON.stringify({
+                                token: token,
+                                type: editing ? 'edit' : 'add',
+                                data: {
+                                    title: title,
+                                    start: dateStart,
+                                    end: dateEnd,
+                                    id: editID
+                                }
+                            }),
+                            success: function (response) {
+                                // Redirect
+                                console.log(response);
+
+                                if (!editing)
+                                    loadEvents();
+                            },
+                            contentType: 'application/json'
+                        });
+                    });
+                });
+
+            // wait for auth to load
+            function load(code) {
+                var callback = firebase.auth().onAuthStateChanged(function () {
+                    // De-subscribe after one call
+                    callback();
+                    code();
+                });
+            }
+
+            // load events from server
+            function loadEvents() {
+                load(function () {
+                    firebase.auth().currentUser.getToken(true).then(function (token) {
+                        // Retrieve the data from the server
+                        $.ajax({
+                            type: 'POST',
+                            url: window.location.origin + '/api/schedule',
+                            data: JSON.stringify({
+                                type: 'get',
+                                data: {
+                                    uid: firebase.auth().currentUser.uid
+                                }
+                            }),
+                            success: function (response) {
+                                // Pull events from server
+                                console.log(response);
+
+                                events = [];
+
+                                response.events.forEach(function (event) {
+                                    event.start = new Date(event.start);
+                                    event.end = new Date(event.end);
+
+                                    events.push(event);
+                                });
+
+                                $('#calendar').fullCalendar('removeEventSources');
+                                $('#calendar').fullCalendar('addEventSource', events);
+                            },
+                            contentType: 'application/json'
+                        });
+                    });
+                });
+            }
+
+            loadEvents();
+
+        });
+    </script>
+}

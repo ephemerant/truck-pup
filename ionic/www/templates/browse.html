@@ -1,0 +1,19 @@
+<ion-view view-title="Browse">
+  <ion-content>
+    <h4>Browse Trucks</h4>
+    <div>
+
+      <div class="list">
+        <a ng-repeat="truck in trucks" ui-sref="app.listDetail({uid: truck.uid
+          })" class="item item-thumbnail-left" ng-if="truck.name">
+        <img class="truck-logo" ng-src="{{ truck.logo }}">
+        <item class="item-text-wrap">
+          {{truck.name}}
+        </item>
+      </a>
+
+    </div>
+
+  </div>
+</ion-content>
+</ion-view>

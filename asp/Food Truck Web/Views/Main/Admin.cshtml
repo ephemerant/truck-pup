@@ -1,0 +1,225 @@
+﻿@{
+    ViewBag.Title = "Admin";
+}
+
+<div class="card card-block render render-body" ng-app="app" ng-controller="adminCtrl">
+    <table class="table table-hover td-middle table-col-3">
+        <thead class="thead unique-color-dark">
+            <tr>
+                <th>Truck Name</th>
+                <th>Status</th>
+                <th class="button-col-180 col-half">Options</th>
+                <th class="button-col-180 col-half">
+                    <button class="btn btn-outline-info btn-block btn-inline-block" ng-click="addTruck()">
+                        <i class="fa fa-plus"></i>
+                        Add Truck
+                    </button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="row in rows track by $index">
+                <td>{{ row.name }}</td>
+                <td>{{ statusCodes[row.statusCode] }}</td>
+
+                @*Options*@
+                <td class="button-col-180 col-half">
+                    <button class="btn btn-primary active btn-block" ng-if="row.statusCode === 0" data-clipboard-text="{{ getLink(row) }}" ngclipboard ngclipboard-success="onSuccess(e);">
+                        <i class="fa fa-clipboard"></i>
+                        Copy Link
+                    </button>
+
+                    <button class="btn btn-secondary active btn-block" ng-if="row.statusCode === 1" ng-click="toggle(row, 2)">
+                        <i class="fa fa-ban"></i>
+                        Disable
+                    </button>
+
+                    <button class="btn btn-success active btn-block" ng-if="row.statusCode === 2" ng-click="toggle(row, 1)">
+                        <i class="fa fa-check"></i>
+                        Enable
+                    </button>
+                </td>
+
+                @*Spillover column*@
+                <td class="button-col-180 col-half">
+                    <button class="btn btn-danger active btn-block" ng-if="row.statusCode === 0 || row.statusCode === 2" ng-click="delete(row, $index)">
+                        <i class="fa fa-times"></i>
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.16/clipboard.min.js"></script>
+    <script src="~/Scripts/ngclipboard.min.js"></script>
+    <script>
+        // For testing
+        function getRandomIntInclusive(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Actual application
+        var clipboard = new Clipboard('.btn-copy');
+
+        var app = angular.module('app', ['ngclipboard']);
+
+        app.controller('adminCtrl', function ($scope) {
+            var vm = $scope;
+
+            vm.statusCodes = ['Awaiting Registration', 'Active', 'Disabled'];
+
+            vm.rows = [];
+
+            // Wait for auth to load
+            function load(code) {
+                var callback = firebase.auth().onAuthStateChanged(function () {
+                    // De-subscribe after one call
+                    callback();
+                    code();
+                });
+            }
+
+            vm.loadUsers = function () {
+                firebase.auth().currentUser.getToken(true).then(function (token) {
+                    $.ajax({
+                        type: 'POST',
+                        url: window.location.origin + '/api/admin',
+                        data: JSON.stringify({
+                            token: token,
+                            type: 'get'
+                        }),
+                        success: function (response) {
+                            console.log(response);
+                            // Display rows
+                            response.users.forEach(function (user) {
+                                vm.rows.push({ name: user.name || user.email, statusCode: user.enabled ? 1 : 2, uid: user.uid })
+                            })
+
+                            response.pendingUsers.forEach(function (user) {
+                                vm.rows.push({ name: user.name, statusCode: 0, id: user.id })
+                            })
+
+                            vm.$apply();
+                        },
+                        contentType: 'application/json'
+                    });
+                });
+            };
+
+            load(vm.loadUsers);
+
+            vm.addTruck = function () {
+                swal({
+                    title: 'Truck Name:',
+                    input: 'text',
+                    showCancelButton: true,
+                    confirmButtonText: 'Add',
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: false
+                }).then(function (name) {
+                    // Send the data to the server
+                    firebase.auth().currentUser.getToken(true).then(function (token) {
+                        $.ajax({
+                            type: 'POST',
+                            url: window.location.origin + '/api/admin',
+                            data: JSON.stringify({
+                                token: token,
+                                type: 'create',
+                                data: {
+                                    name: name
+                                }
+                            }),
+                            success: function (response) {
+                                console.log(response);
+                                // Add row
+                                vm.rows.push({ name: name, statusCode: 0, id: response.id });
+                                vm.$apply();
+                            },
+                            contentType: 'application/json'
+                        });
+                    });
+                });
+            }
+
+            // value of 1 = enable, 2 = disable
+            vm.toggle = function (row, value) {
+                // Send the data to the server
+                firebase.auth().currentUser.getToken(true).then(function (token) {
+                    $.ajax({
+                        type: 'POST',
+                        url: window.location.origin + '/api/admin',
+                        data: JSON.stringify({
+                            token: token,
+                            type: 'toggle',
+                            data: {
+                                uid: row.uid
+                            }
+                        }),
+                        success: function (response) {
+                            console.log(response);
+                            // Toggle row
+                            row.statusCode = value;
+                            vm.$apply();
+                        },
+                        contentType: 'application/json'
+                    });
+                });
+            }
+
+            vm.delete = function (row, index) {
+                // Send the data to the server
+                firebase.auth().currentUser.getToken(true).then(function (token) {
+                    $.ajax({
+                        type: 'POST',
+                        url: window.location.origin + '/api/admin',
+                        data: JSON.stringify({
+                            token: token,
+                            type: 'delete',
+                            data: {
+                                id: row.id,
+                                uid: row.uid
+                            }
+                        }),
+                        success: function (response) {
+                            console.log(response);
+                            // Delete row
+                            if (response.deleted == 1) {
+                                vm.rows.splice(index, 1);
+                                vm.$apply();
+                            }
+                        },
+                        contentType: 'application/json'
+                    });
+                });
+            }
+
+            vm.getLink = function (row) {
+                return window.location.origin + '/register/' + row.id;
+            }
+
+            // On copy success
+            vm.onSuccess = function (e) {
+                toastr.info('The registration link was successfully copied to your clipboard!')
+            };
+
+            // Add test data
+            //for (var i = 1; i <= 10; i++)
+            //    vm.rows.push({
+            //        name: 'Truck ' + i,
+            //        statusCode: getRandomIntInclusive(0, 2)
+            //    });
+
+            /* statusCode
+                0: Awaiting Registration
+                1: Active
+                2: Disabled
+            */
+
+        });
+    </script>
+}

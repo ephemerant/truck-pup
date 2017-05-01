@@ -1,0 +1,11 @@
+<ion-view view-title="Event List">
+  <ion-content>
+    <h4>Event List</h4>
+      <ion-list>
+      <ion-item ng-repeat="event in eventlist" ui-sref="app.listDetail({uid: event.uid})"
+      class="item item-thumbnail-left">
+        {{event}}
+      </ion-item>
+  </ion-list>
+  </ion-content>
+</ion-view>

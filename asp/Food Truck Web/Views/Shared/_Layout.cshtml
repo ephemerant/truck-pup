@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        if (window.location.protocol != "https:" && window.location.hostname != "localhost") {
+            var oldURL = window.location.href
+            var newURL = oldURL.replace("http:", "https:");
+            window.location = newURL;
+        }
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@(@ViewBag.Subtitle == null ? ViewBag.Title : ViewBag.Subtitle) | TruckPup</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.2.0/css/mdb.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/sweetalert2/6.2.1/sweetalert2.min.css" rel="stylesheet" />
+    @RenderSection("Styles", false)
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+    <script src="~/Scripts/modernizr-2.6.2.js"></script>
+</head>
+<body class="unique-color">
+    <!--Navigation-->
+    <header>
+        <!--Navbar-->
+        <nav class="navbar navbar-dark unique-color-dark">
+            <!-- Collapse button-->
+            <button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#collapseEx">
+                <i class="fa fa-bars"></i>
+            </button>
+            <div class="container">
+                <!--Collapse content-->
+                <div class="collapse navbar-toggleable-xs" id="collapseEx">
+                    <!--Navbar Brand-->
+                    <a class="navbar-brand" href="@Url.Content("~/")">
+                        <i class="fa fa-cutlery" aria-hidden="true"></i>
+                    </a>
+                    <!--Links-->
+                    <ul class="nav navbar-nav">
+                        @*<li class="nav-item @(ViewBag.Title == "Home" ? "active" : "")">
+                            <a class="nav-link" href="@Url.Content("~/")">
+                                Home
+                            </a>
+                        </li>*@
+                        @if (Session["admin"] == null && Session["vendor"] == null)
+                        {
+                            <li class="nav-item @(ViewBag.Title == "Login" ? "active" : "")">
+                                <a class="nav-link" href="@Url.Content("~/login")">
+                                    Login
+                                </a>
+                            </li>
+                        }
+                        @if (Session["vendor"] != null)
+                        {
+                            <li class="nav-item btn-group  @(ViewBag.Title == "Vendor" ? "active" : "")">
+                                <a class="nav-link dropdown-toggle" id="ddlVendor" data-toggle="dropdown">Vendor</a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item @(ViewBag.Subtitle == "Edit Profile" ? "active" : "")"
+                                       href="@Url.Content("~/profile")">Edit Profile</a>
+                                    <a class="dropdown-item @(ViewBag.Subtitle == "Manage Menu" ? "active" : "")"
+                                       href="@Url.Content("~/menu")">Manage Menu</a>
+                                    <a class="dropdown-item @(ViewBag.Subtitle == "Schedule Posts" ? "active" : "")"
+                                       href="@Url.Content("~/schedule")">Schedule Posts</a>
+                                </div>
+                            </li>
+                        }
+                        @if (Session["admin"] != null)
+                        {
+                            <li class="nav-item @(ViewBag.Title == "Admin" ? "active" : "")">
+                                <a class="nav-link" href="@Url.Content("~/admin")">
+                                    Admin
+                                </a>
+                            </li>
+                        }
+                        @if (Session["admin"] != null || Session["vendor"] != null)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Content("~/logout")">
+                                    Logout
+                                </a>
+                            </li>
+                        }
+                    </ul>
+
+                    <!--Navbar icons-->
+                    <ul class="nav navbar-nav nav-flex-icons">
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://www.facebook.com/LouisvilleFoodTruckAssociation/" target="_blank"><i class="fa fa-facebook"></i></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://twitter.com/LouFoodTrucks" target="_blank"><i class="fa fa-twitter"></i></a>
+                        </li>
+                        @*<li class="nav-item">
+                                <a class="nav-link"><i class="fa fa-instagram"></i></a>
+                            </li>*@
+                    </ul>
+
+                </div>
+                <!--/.Collapse content-->
+            </div>
+        </nav>
+        <!--/.Navbar-->
+
+    </header>
+    <!--/Navigation-->
+    <!--Main layout-->
+    <main class="pa-1">
+        @RenderBody()
+    </main>
+    <!--/Main layout-->
+
+    <script src="~/Scripts/jquery-3.1.1.min.js"></script>
+    <script src="~/Scripts/tether.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.2.0/js/mdb.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0/angular.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.6.4/firebase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/sweetalert2/6.2.1/sweetalert2.min.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyCbCSInIxpupqtno459dd_jSqFqESNJohM",
+            authDomain: "loufood-558c9.firebaseapp.com",
+            databaseURL: "https://loufood-558c9.firebaseio.com",
+            storageBucket: "loufood-558c9.appspot.com",
+            messagingSenderId: "255278217121"
+        };
+        firebase.initializeApp(config);
+    </script>
+    @if (Session["message"] != null)
+    {
+        <script>
+            toastr.info("@Session["message"]")
+        </script>
+
+        Session["message"] = null;
+    }
+    
+    @if (Session["error_message"] != null)
+    {
+        <script>
+            toastr.error("@Session["error_message"]")
+        </script>
+
+        Session["error_message"] = null;
+    }
+
+    @RenderSection("Scripts", false)
+</body>
+</html>

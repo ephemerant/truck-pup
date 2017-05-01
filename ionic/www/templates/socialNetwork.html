@@ -1,0 +1,21 @@
+<ion-view view-title="Post to Social Networks">
+  <ion-content>
+
+    <!-- Placeholder for Social Network Buttons -->
+    <ion-list>
+      <ion-item>
+        <label class="item item-input item-floating-label">
+            <span class="input-label">Write a Post</span>
+            <input type="text" placeholder="Write a Post">
+          </label>
+        <ion-textarea [(ngModel)]="msg"></ion-textarea>
+      </ion-item>
+      <ion-item>
+		  <button class = "button-round" onClick = location.href="https://www.facebook.com/">Post to Facebook</button>
+      </ion-item>
+      <ion-item>
+          <button class = "button-round" onClick = location.href="https://twitter.com/">Post to Twitter</button>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

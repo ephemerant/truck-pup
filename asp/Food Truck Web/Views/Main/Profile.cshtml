@@ -1,0 +1,105 @@
+﻿@{
+    ViewBag.Title = "Vendor";
+    ViewBag.Subtitle = "Edit Profile";
+}
+
+<form class="card card-block render render-login" method="post" enctype="multipart/form-data">
+
+    @if (ViewBag.logo != "")
+    {
+        <div style="background: url(@ViewBag.logo)" class="logo"></div>
+    }
+
+    <!--Header-->
+    <div class="text-xs-center">
+        <h3>Edit Profile</h3>
+        <hr class="mt-2 mb-2">
+    </div>
+
+    <!--Body-->
+
+    @*Truck Name*@
+    <div class="md-form">
+        <i class="fa fa-user prefix"></i>
+        <input type="text" id="name" name="name" class="form-control" maxlength="100" value="@ViewBag.name" required>
+        <label for="name">Truck Name</label>
+    </div>
+
+    @*Truck Description*@
+    <div class="md-form">
+        <i class="fa fa-id-card prefix"></i>
+        <input type="text" id="about" name="about" class="form-control" value="@ViewBag.about" maxlength="100">
+        <label for="about">Truck Description (Optional)</label>
+    </div>
+
+    @*Facebook*@
+    <div class="md-form">
+        <i class="fa fa-facebook-square prefix"></i>
+        <input type="text" id="facebook" name="facebook" class="form-control" value="@ViewBag.facebook" maxlength="200">
+        <label for="facebook">Facebook URL (Optional)</label>
+    </div>
+
+    @*Twitter*@
+    <div class="md-form">
+        <i class="fa fa-twitter-square prefix"></i>
+        <input type="text" id="twitter" name="twitter" class="form-control" value="@ViewBag.twitter" maxlength="200">
+        <label for="twitter">Twitter URL (Optional)</label>
+    </div>
+    
+    @*Truck Logo*@
+    <div class="md-form file-form">
+        <i class="fa fa-camera prefix"></i>
+        <input type="file" id="logo" name="logo" class="form-control" accept="image/*">
+        <label for="logo">Truck Logo (Optional)</label>
+    </div>
+
+    @*Update*@
+    <div class="text-xs-center">
+        <button id="btnUpdate" class="btn btn-primary active">Update</button>
+    </div>
+
+</form>
+
+@section Scripts
+{
+    <script>
+        $('#btnUpdate').click(function (e) {
+            // Do a client-side validation of the Facebook & Twitter URLs
+
+            var fb = $('#facebook').val();
+            var tw = $('#twitter').val();
+
+            if (fb != '' && !fb.match(/^(http:\/\/|https:\/\/)?(www\.)?facebook\.com\/.*$/))
+            {
+                toastr.error("Invalid Facebook URL");
+                e.preventDefault();
+            }
+
+            if (tw != '' && !tw.match(/^(http:\/\/|https:\/\/)?(www\.)?twitter\.com\/.*$/)) {
+                toastr.error("Invalid Twitter URL");
+                e.preventDefault();
+            }
+
+            // Try to do client-side validation of the logo
+
+            if (!window.FileReader)
+                return;
+
+            var input = document.getElementById('logo');
+
+            if (input && input.files && input.files[0]) {
+                var file = input.files[0];
+
+                if (file.size > 1024 * 1024 * 2) {
+                    toastr.error("Logos cannot exceed 2 MB");
+                    e.preventDefault();
+                }
+
+                if (!file.name.match(/\.(jpg|jpeg|png|gif|bmp)$/)) {
+                    toastr.error("Logos must be images");
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+}
